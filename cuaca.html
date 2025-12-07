@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Perkiraan Cuaca Indonesia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 10px;
+            width: 300px;
+            margin-top: 20px;
+        }
+        select, button {
+            padding: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Perkiraan Cuaca di Indonesia</h2>
+    <p>Pilih kota untuk melihat suhu dan kondisi cuaca hari ini.</p>
+
+    <select id="city">
+        <option value="-6.2088,106.8456">Jakarta</option>
+        <option value="-6.9147,107.6098">Bandung</option>
+        <option value="-7.2575,112.7521">Surabaya</option>
+        <option value="3.5952,98.6722">Medan</option>
+        <option value="-5.1477,119.4327">Makassar</option>
+        <option value="-7.7971,110.3688">Yogyakarta</option>
+    </select>
+
+    <button onclick="getWeather()">Lihat Cuaca</button>
+
+    <div id="result" class="card" style="display:none;"></div>
+
+    <script>
+        function getWeather() {
+            const val = document.getElementById("city").value.split(",");
+            const lat = val[0];
+            const lon = val[1];
+
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const temp = data.current_weather.temperature;
+                    const wind = data.current_weather.windspeed;
+                    const code = data.current_weather.weathercode;
+
+                    const desc = weatherDescription(code);
+
+                    document.getElementById("result").style.display = "block";
+                    document.getElementById("result").innerHTML = `
+                        <h3>Hasil Perkiraan Cuaca</h3>
+                        <p><strong>Suhu:</strong> ${temp}°C</p>
+                        <p><strong>Kecepatan Angin:</strong> ${wind} km/jam</p>
+                        <p><strong>Kondisi:</strong> ${desc}</p>
+                    `;
+                });
+        }
+
+        function weatherDescription(code) {
+            if (code === 0) return "Cerah ☀️";
+            if ([1,2,3].includes(code)) return "Berawan ⛅";
+            if ([61,63,65].includes(code)) return "Hujan 🌧️";
+            if ([95,96,99].includes(code)) return "Badai ⛈️";
+            return "Tidak diketahui";
+        }
+    </script>
+
+</body>
+</html>
